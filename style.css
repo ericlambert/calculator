@@ -1,0 +1,25 @@
+#calculator {
+	background-color: #2196F3;
+	font-family: Helvetica, Arial, sans-serif;
+}
+
+#display { 
+	text-align: right;
+  	font-size: 50px;
+  	padding: 15px;
+	grid-area: display; 
+}
+
+
+.grid-container {
+	display: grid;
+	grid-template-columns: auto auto auto auto;
+	grid-gap: 1px;
+}
+
+.grid-container > div {
+	background-color: rgba(255, 255, 255, 0.8);
+	text-align: center;
+	font-size: 30px;
+	padding: 7px;
+}
