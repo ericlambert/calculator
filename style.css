@@ -24,7 +24,7 @@
 	color: black;
 	background-color: rgba(255, 255, 255, 0.8);
 	font-weight: 400;
-	font-size: 24px;
+	font-size: 22px;
 }
 
 #operation {
@@ -47,7 +47,12 @@
 	grid-gap: 1px;
 }
 
-.grid-container > div {
+button {
 	text-align: center;
 	padding: 10px;
+	background: none;
+    border: none;
+    outline: none;
+
+    cursor: pointer;
 }
