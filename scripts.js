@@ -5,49 +5,29 @@
 let mCurrent = []; // current input memory
 let mPrevious = [] // previous input memory
 
-window.addEventListener('onclick', catchClick);
+let allDigits = Array.from(document.getElementsByClassName("digit"));
+let allOptions = Array.from(document.getElementsByClassName("option"));
+let allOperations = Array.from(document.getElementsByClassName("operation"));
+let allExecutes = Array.from(document.getElementsByClassName("execute"));
 
-let allDigits = document.getElementsById("digit");
-let allOptions = document.getElementsById("option");
-let allOperations = document.getElementsById("operation");
-let allExecutes = document.getElementsById("execute");
+allDigits.forEach(button => button.addEventListener("click", function(){
+	let last = mCurrent[mCurrent.length-1];
 
-allDigits.forEach(buttton => button.addEventListener("click", function(){ 
-	mCurrent.push(e.innerHTML);
-	updateDisplay();
-}));
-
-
-function catchClick(e) {
-	const id = e.id;
-
-	switch (id) {
-		case 'digit':
-			mCurrent.push(e.innerHTML);
-			break;
-		case 'option':
-			handleOptionClicks(e.innerHTML);
-			break;
-		case 'operation':
-			// Not implemented
-			break;
-		case 'execute':
-			// not implemented
-			break;
-		default:
-			break;
+	if (isNumeric(last)) {
+		mCurrent.pop()
+		mCurrent.push(last + button.innerHTML)
+	} else {
+		mCurrent.push(button.innerHTML);
 	}
-
-	updateDisplay();
-}
-
-function handleOptionClicks(e) {
+	
+	updateDisplay();}));
+allOptions.forEach(button => button.addEventListener("click", function(){
 	if (mCurrent.length > 0) {
-		const buttonText = e.innerHTML;
+		const buttonText = button.innerHTML;
 
 		switch (buttonText) {
 			case 'C':
-				clearCurrentMemory();
+				clearAllMemory();
 				updateDisplay();
 				break;
 			case '±':
@@ -61,8 +41,15 @@ function handleOptionClicks(e) {
 			default:
 				break;
 		}
-	}
-}
+	}}));
+allOperations.forEach(button => button.addEventListener("click", function(){
+	mPrevious.length = 0;
+	mPrevious.push(mCurrent.join(''));
+	mPrevious.push(button.innerHTML);
+	mCurrent.length = 0;
+	mCurrent.push(mPrevious.join(''));
+	updateDisplay();
+}));
 
 function operate (operator,a,b) {
 	switch (operator) {
@@ -74,36 +61,31 @@ function operate (operator,a,b) {
 			return a * b;
 		default:
 			return 'Invalid operator';
-	}
-}
-
+	}}
 function add (a,b) { return this.operate('+',a,b);}
 function subtract (a,b) { return this.operate('-',a,b);}
 function multipy (a,b) { return this.operate('*',a,b);}
 function divide (a,b) { return this.multipy(a,1/b);}
 
-function clearCurrentMemory() { mCurrent.length = 0;}
-
+function clearAllMemory() { 
+	mCurrent.length = 0;
+	mPrevious.length = 0;
+}
 function updateDisplay() {
 	let displayText = (mCurrent[0] != null) ? mCurrent.join('') : 0;
-	document.getElementById("display").text = displayText;
-}
-
+	document.getElementById("display").innerHTML = displayText;}
 function switchSigns() {
 	if (mCurrent.length > 0) {
-		let switched = mCurrent.join('') * -1;
-		clearCurrentMemory();
-		mCurrent.push(switched);
-	};
-}
-
+		let switched = mCurrent[mCurrent.length - 1] * -1;
+		mCurrent[mCurrent.length - 1] = switched;
+	};}
 function makePercent() {
 	if (mCurrent.length > 0) {
-		let percent = mCurrent.join('') / 100;
-		clearCurrentMemory();
-		mCurrent.push(percent);
-	};
+		let percent = mCurrent[mCurrent.length - 1] / 100;
+		mCurrent[mCurrent.length - 1] = percent;
+	};}
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
 }
-
-
 

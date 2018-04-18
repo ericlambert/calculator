@@ -13,28 +13,28 @@
 	grid-area: display; 
 }
 
-#option {
+.option {
 	color: black;
 	background-color: rgba(255, 255, 255, 0.7);
 	font-weight: 400;
 	font-size: 20px;
 }
 
-#digit {
+.digit {
 	color: black;
 	background-color: rgba(255, 255, 255, 0.8);
 	font-weight: 400;
 	font-size: 22px;
 }
 
-#operation {
+.operation {
 	color: white;
 	background-color: rgba(247, 145, 62, 1);
 	font-weight: 400;
 	font-size: 24px;
 }
 
-#execute {
+.execute {
 	color: white;
 	background-color: rgba(247, 145, 62, 1);
 	font-weight: 400;
