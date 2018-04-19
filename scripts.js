@@ -40,7 +40,7 @@ function handleExpressionInput(button){
 	} else {
 		if (lastInput != null && isNumeric(lastInput)) {
 			memory.push(thisInput);
-		} else if (lastInput != null) {
+		} else if (lastInput != null && lastInput != '.') {
 			memory.pop();
 			memory.push(thisInput);
 		}
@@ -48,6 +48,7 @@ function handleExpressionInput(button){
 
 	updateDisplay();
 }
+
 function handleOptionInput(button){
 	switch (button.innerHTML) {
 		case 'C':
@@ -62,24 +63,34 @@ function handleOptionInput(button){
 		case '.':
 			makeDecimal();
 			break;
+		case '←':
+			removeLast();
+			break;
 		default:
 			break;
 	}
 
 	updateDisplay();
 }
+
 function handleExecuteInput(button){
-	while (memory.length > 1) {
-		const calc = operate(memory[1],memory[0],memory[2]);
-		memory.shift();
-		memory.shift();
-		memory.shift();
-		memory.unshift(calc);
-		console.log(memory);
+	let lastInput = (memory.length != 0) ? memory[memory.length - 1] : null ; 
+	if (memory.length >= 3 && isNumeric(lastInput)) {
+		while (memory.length > 1) {
+			const calc = operate(memory[1],memory[0],memory[2]);
+			memory.shift();
+			memory.shift();
+			memory.shift();
+			memory.unshift(calc);
+			console.log(memory);
+		}
+
+		updateDisplay();
+		console.log(button.className);
 	}
 
-	updateDisplay();
-	console.log(button.className);
+	// Not implemented: write a version that handles order of 
+	//operations ie. multi and div before add and subtract
 }
 
 function add (a,b) { return this.operate('+',a,b); }
@@ -111,7 +122,8 @@ function operate (operator,a,b) {
 function clearAllMemory() { memory.length = 0;}
 function updateDisplay() {
 	let displayText = (memory.length != 0) ? memory.join('') : 0;
-	document.getElementById('display').innerHTML = displayText;
+	displayText = (displayText == 'Infinity') ? 'C\'mon!' : displayText;
+	document.getElementById('display').innerHTML = (isNumeric(displayText) && String(displayText).includes('.')) ? (displayText * 1).toFixed(2) : displayText;
 }
 function switchSigns() {
 	if (memory.length > 0) {
@@ -128,10 +140,18 @@ function makePercent() {
 		memory[memory.length - 1] = percent;
 	};
 }
+function removeLast() {
+	let lastInput = (memory.length != 0) ? memory[memory.length - 1] : null ;
+	if (lastInput.length > 1) {
+		memory[memory.length - 1] = lastInput.replace(lastInput.slice(-1),'');
+	} else {
+		memory.pop();
+	}
+}
 
 function makeDecimal() {
 	if (memory.length > 0) {
-		let lastInput = (memory.length != 0) ? memory[memory.length - 1] : '' ;
+		let lastInput = (memory.length != 0) ? String(memory[memory.length - 1]) : null ;
 		if (!lastInput.includes('.')) {
 			if (isNumeric(lastInput)) {
 				memory.pop();
