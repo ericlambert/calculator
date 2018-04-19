@@ -1,91 +1,145 @@
 // A simple calculator per Odin Project exercise.
-// 	"an on-screen calculator using JavaScript, HTML and CSS"
+// 	'an on-screen calculator using JavaScript, HTML and CSS'
 // https://www.theodinproject.com/courses/web-development-101/lessons/calculator?ref=lnav
 
-let mCurrent = []; // current input memory
-let mPrevious = [] // previous input memory
+let memory = []; // current input memory
 
-let allDigits = Array.from(document.getElementsByClassName("digit"));
-let allOptions = Array.from(document.getElementsByClassName("option"));
-let allOperations = Array.from(document.getElementsByClassName("operation"));
-let allExecutes = Array.from(document.getElementsByClassName("execute"));
-
-allDigits.forEach(button => button.addEventListener("click", function(){
-	let last = mCurrent[mCurrent.length-1];
-
-	if (isNumeric(last)) {
-		mCurrent.pop()
-		mCurrent.push(last + button.innerHTML)
-	} else {
-		mCurrent.push(button.innerHTML);
+let allButtons = Array.from(document.getElementsByTagName('button'));
+allButtons.forEach((button => button.addEventListener('click', function(){
+	switch (button.className) {
+		case 'digit':
+		case 'operation':
+			handleExpressionInput(button);
+			break;
+		case 'option':
+			handleOptionInput(button);
+			break;
+		case 'execute':
+			handleExecuteInput(button);
+			break;
+		default:
+			break;
 	}
-	
-	updateDisplay();}));
-allOptions.forEach(button => button.addEventListener("click", function(){
-	if (mCurrent.length > 0) {
-		const buttonText = button.innerHTML;
 
-		switch (buttonText) {
-			case 'C':
-				clearAllMemory();
-				updateDisplay();
-				break;
-			case '±':
-				switchSigns()
-				updateDisplay();
-				break;
-			case '%':
-				makePercent();
-				updateDisplay();
-				break;
-			default:
-				break;
+	console.log(memory);
+})));
+
+function handleExpressionInput(button){
+	console.log(button.className);
+
+	let lastInput = (memory.length != 0) ? memory[memory.length - 1] : null ;
+	let thisInput = button.innerHTML;
+
+	if (isNumeric(thisInput)){
+		if (isNumeric(lastInput) || lastInput == '.') {
+			memory.pop();
+			memory.push(lastInput + thisInput);
+		} else {
+			memory.push(thisInput);
 		}
-	}}));
-allOperations.forEach(button => button.addEventListener("click", function(){
-	mPrevious.length = 0;
-	mPrevious.push(mCurrent.join(''));
-	mPrevious.push(button.innerHTML);
-	mCurrent.length = 0;
-	mCurrent.push(mPrevious.join(''));
+	} else {
+		if (lastInput != null && isNumeric(lastInput)) {
+			memory.push(thisInput);
+		} else if (lastInput != null) {
+			memory.pop();
+			memory.push(thisInput);
+		}
+	}
+
 	updateDisplay();
-}));
+}
+function handleOptionInput(button){
+	switch (button.innerHTML) {
+		case 'C':
+			clearAllMemory();
+			break;
+		case '±':
+			switchSigns();
+			break;
+		case '%':
+			makePercent();
+			break;
+		case '.':
+			makeDecimal();
+			break;
+		default:
+			break;
+	}
+
+	updateDisplay();
+}
+function handleExecuteInput(button){
+	while (memory.length > 1) {
+		const calc = operate(memory[1],memory[0],memory[2]);
+		memory.shift();
+		memory.shift();
+		memory.shift();
+		memory.unshift(calc);
+		console.log(memory);
+	}
+
+	updateDisplay();
+	console.log(button.className);
+}
+
+function add (a,b) { return this.operate('+',a,b); }
+function subtract (a,b) { return this.operate('-',a,b); }
+function multipy (a,b) { return this.operate('*',a,b); }
+function divide (a,b) { return this.operate('*',a,1/b); }
 
 function operate (operator,a,b) {
-	switch (operator) {
-		case '+':
-			return a + b;
-		case '-':
-			return a - b;
-		case '*':
-			return a * b;
-		default:
-			return 'Invalid operator';
-	}}
-function add (a,b) { return this.operate('+',a,b);}
-function subtract (a,b) { return this.operate('-',a,b);}
-function multipy (a,b) { return this.operate('*',a,b);}
-function divide (a,b) { return this.multipy(a,1/b);}
+	a = Number(a);
+	b = Number(b);
 
-function clearAllMemory() { 
-	mCurrent.length = 0;
-	mPrevious.length = 0;
+	if (isNumeric(a) && isNumeric(b)) {
+		switch (operator) {
+			case '+':
+				return a + b;
+			case '-':
+				return a - b;
+			case '*':
+			case '×':
+				return a * b;
+			case '÷':
+				return a * (1/b);
+			default:
+				return 'Invalid operator';
+		}
+	}
 }
+
+function clearAllMemory() { memory.length = 0;}
 function updateDisplay() {
-	let displayText = (mCurrent[0] != null) ? mCurrent.join('') : 0;
-	document.getElementById("display").innerHTML = displayText;}
+	let displayText = (memory.length != 0) ? memory.join('') : 0;
+	document.getElementById('display').innerHTML = displayText;
+}
 function switchSigns() {
-	if (mCurrent.length > 0) {
-		let switched = mCurrent[mCurrent.length - 1] * -1;
-		mCurrent[mCurrent.length - 1] = switched;
-	};}
+	if (memory.length > 0) {
+		let lastInput = memory[memory.length - 1];
+		lastInput = (isNumeric(lastInput)) ? lastInput *= -1 : lastInput;
+		memory.pop();
+		memory.push(lastInput);
+	};
+}
 function makePercent() {
-	if (mCurrent.length > 0) {
-		let percent = mCurrent[mCurrent.length - 1] / 100;
-		mCurrent[mCurrent.length - 1] = percent;
-	};}
-
-function isNumeric(n) {
-  return !isNaN(parseFloat(n)) && isFinite(n);
+	let lastInput = (memory.length != 0) ? memory[memory.length - 1] : '' ;
+	if (memory.length > 0 && isNumeric(lastInput)) {
+		let percent = memory[memory.length - 1] / 100;
+		memory[memory.length - 1] = percent;
+	};
 }
 
+function makeDecimal() {
+	if (memory.length > 0) {
+		let lastInput = (memory.length != 0) ? memory[memory.length - 1] : '' ;
+		if (!lastInput.includes('.')) {
+			if (isNumeric(lastInput)) {
+				memory.pop();
+				memory.push(lastInput + '.');
+			} else { memory.push('.')}
+			
+		}
+	} else { memory.push('.') };
+}
+
+function isNumeric(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
